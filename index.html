@@ -28,6 +28,7 @@ canvas{display:block}
 .scr h1{color:var(--red);font-size:clamp(26px,6vw,56px);margin:0 0 14px}
 .scr p{max-width:620px;line-height:1.5;margin:6px 0}
 .scr button{margin-top:18px;padding:12px 28px;font:inherit;font-size:20px;background:#300;color:#fcc;border:2px solid #f33;cursor:pointer}
+html.free,html.free body{cursor:default}
 </style></head><body>
 <div id="hands"><div class="hand l"><div class="scan"><i></i></div></div><div class="hand r"></div></div>
 <div id="gear" title="Настройки">⚙</div><div id="set"><b>Настройки</b><label>Звук <input id="vol" type="range" min="0" max="100" value="70"></label><label>Яркость <input id="bri" type="range" min="60" max="130" value="100"></label><small>Пауза. Нажми ⚙, чтобы продолжить</small></div><div id="vig"></div><div id="fl"></div>
@@ -233,5 +234,8 @@ speed=$('fast').checked?10:1;started=true;cvs.requestPointerLock&&cvs.requestPoi
 $('gear').onclick=()=>{paused=!paused;$('set').style.display=paused?'block':'none';holdBtn=false;if(paused&&document.exitPointerLock)document.exitPointerLock()};
 $('vol').oninput=e=>{vol=e.target.value/100;if(master)master.gain.value=vol};
 $('bri').oninput=e=>{cvs.style.filter='brightness('+e.target.value/100+')'};
+addEventListener('keydown',e=>{if(e.key=='Control'&&document.exitPointerLock)document.exitPointerLock()});
+document.addEventListener('pointerlockchange',()=>document.documentElement.classList.toggle('free',document.pointerLockElement!==cvs));
+document.documentElement.classList.add('free');
 requestAnimationFrame(loop);
 </script></body></html>
