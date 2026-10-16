@@ -8,7 +8,7 @@
 :root[data-theme="dark"]{--bg:#000;--fg:#ddd}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);overflow:hidden;font-family:Consolas,monospace;cursor:none;user-select:none}
 canvas{display:block}
-.hud{position:fixed;pointer-events:none;text-shadow:0 0 6px #000;font-size:clamp(14px,2.4vw,22px)}
+.hud{position:fixed;pointer-events:none;text-shadow:0 0 6px #000;font-size:clamp(14px,min(2.4vw,4vh),22px)}
 #time{top:12px;left:16px}#bat{top:12px;right:16px}#cnt{top:40px;left:16px;font-size:14px;opacity:.7}
 #msg{top:14%;left:0;right:0;text-align:center;color:#f55;font-weight:bold}
 #prog{bottom:32vh;left:50%;transform:translateX(-50%);width:200px;height:10px;border:1px solid #f33;display:none}
@@ -37,23 +37,53 @@ html,body{touch-action:none}.scr{overflow:auto}
 #hands.shk .hand{animation:trm .09s infinite}#hands.scn.shk .hand.r{animation:typ .22s infinite}
 @keyframes typ{50%{translate:0 -3vh}}@keyframes trm{50%{translate:2px -2px}}
 @media (pointer:coarse){#gear{width:42px;height:42px;line-height:42px;font-size:24px}.hand{min-width:80px}}
+#bat{font-size:clamp(16px,min(3vw,5vh),28px)}
+#map{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));pointer-events:none}
+.ed{position:fixed;pointer-events:none;opacity:0}
+#el{left:0;top:0;bottom:0;width:6vw;background:linear-gradient(90deg,#f228,#0000)}#er{right:0;top:0;bottom:0;width:6vw;background:linear-gradient(270deg,#f228,#0000)}
+#et{left:0;right:0;top:0;height:6vh;background:linear-gradient(180deg,#f80a,#0000)}#eb{left:0;right:0;bottom:0;height:6vh;background:linear-gradient(0deg,#ff08,#0000)}
+.tz{display:none;position:absolute;left:50%;top:-8vh;width:30%;height:14vh;background:repeating-linear-gradient(45deg,#fc0 0 8px,#111 8px 16px);border-radius:6px;transform:translateX(-50%)}
+#hands.tzh .tz{display:block}#hands.nos .hand.l .scan{display:none}
+#vb{display:none;position:fixed;gap:6px;z-index:5}
+#vb button{width:60px;height:60px;border-radius:50%;background:#2229;border:2px solid #888;color:#fff;font-size:22px;touch-action:manipulation}
+#vb button.on{border-color:#4f4;background:#143a}#vb small{display:block;font-size:10px}
+html.m #map{width:180px;height:180px}
+html.m #vb{display:flex;right:calc(200px + env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom))}
+html.m #bat,html.m #gear,html.m #set{margin-right:env(safe-area-inset-right)}html.m #time,html.m #cnt{margin-left:env(safe-area-inset-left)}
+@media (orientation:portrait){html.m #rot{display:flex;z-index:30}}
+html.m .pc{display:none}html:not(.m) .mb{display:none}#how b{color:#f66}#start{justify-content:flex-start}#start>h1{margin-top:auto}#start>button{margin-bottom:auto}
 </style></head><body>
-<div id="hands"><div class="hand l"><div class="scan"><i></i></div></div><div class="hand r"></div></div>
-<div id="gear" title="Настройки">⚙</div><div id="set"><b>Настройки</b><label>Звук <input id="vol" type="range" min="0" max="100" value="70"></label><label>Яркость <input id="bri" type="range" min="60" max="130" value="100"></label><small>Пауза. Нажми ⚙, чтобы продолжить</small></div><div id="vig"></div><div id="fl"></div>
+<div id="hands"><div class="hand l"><div class="scan"><i></i></div></div><div class="hand r"><div class="tz"></div></div></div>
+<div id="gear" title="Настройки">⚙</div><div id="set"><b>Настройки</b><label>Звук <input id="vol" type="range" min="0" max="100" value="70"></label><label>Яркость <input id="bri" type="range" min="60" max="130" value="100"></label><label>Чувствительность <input id="sns" type="range" min="50" max="200" value="100"></label><label><input id="optv" type="checkbox"> V без взгляда (+0.5% заряда)</label><small>Пауза. Нажми ⚙, чтобы продолжить</small></div><div id="vig"></div><div id="fl"></div>
 <div class="hud" id="time"></div><div class="hud" id="bat"></div><div class="hud" id="cnt"></div>
 <div class="hud" id="msg"></div><div class="hud" id="prog"><i></i></div><div class="hud" id="eye" style="display:none;left:16px;top:45%;font-size:34px">👁</div>
 <div class="hud" id="sub" style="bottom:3vh;left:0;right:0;text-align:center;color:#fff;font-size:clamp(16px,3vw,26px)"></div>
 <div class="hud" id="note" style="display:none;top:20%;left:50%;transform:translateX(-50%);max-width:80vw;background:#000c;padding:10px 16px;border:1px solid #fc6;text-align:center;color:#fe9"></div>
+<canvas id="map" width="120" height="120"></canvas>
+<div id="vb"><button id="bV">🔵<small>V</small></button><button id="bG">⚡<small>G</small></button><button id="bT">🔴<small>T</small></button><button id="bU">👁<small>ВВЕРХ</small></button></div>
+<div class="hud" id="hint" style="top:54%;left:0;right:0;text-align:center;font-size:clamp(13px,2vw,18px);color:#fff"></div>
+<div class="scr" id="rot"><h1>Поверните телефон</h1></div>
 <div id="cur"></div>
 <div class="scr" id="start" style="display:flex"><h1>ПВЗ: НОЧНАЯ СМЕНА</h1>
 <p>Продержись с 12 AM до 6 AM (30 минут).</p><p>🔴 Для отдачи заказа свети сканером на QR-код покупателя 5 секунд.<br>🚪 Слева — дверь: зелёная кнопка — открыта, красная — закрыта. Закрытая дверь тратит батарею, открытая — копит.</p><p>P.S. чтобы починить окно, удерживай левую кнопку мыши на скотче на столе.</p><p id="tip"></p>
+<details id="how" style="max-width:660px;text-align:left;font-size:14px;line-height:1.55;margin-top:8px"><summary style="cursor:pointer;color:#f66;font-weight:bold;text-align:center"><span class="pc">Управление (ПК) — нажми, чтобы раскрыть</span><span class="mb">Управление (телефон) — нажми, чтобы раскрыть</span></summary>
+<ul style="margin:4px 0;padding-left:18px">
+<li class="pc">Мышь — поворот головы. Клик по игре захватывает мышь, <b>Esc</b> или <b>Ctrl</b> освобождают курсор.</li>
+<li class="mb">Свайп — поворот. Короткий тап — «клик» по прицелу в центре. Удержание пальца 0.5 с — «удержание кнопки». Двумя пальцами вниз — пауза, вверх — сброс камеры. Кнопки V / G / T / 👁 внизу справа.</li>
+<li><b>Дверь:</b> клик по кнопке на стене слева (на ПК ещё Пробел). Закрытая дверь тратит батарею, открытая — заряжает.</li>
+<li><b>Клиенты:</b> держи красный свет сканера (прицел) на QR-коде 5 с (8 с, если код мерцает; собьёшь прицел — клиент окажется монстром).</li>
+<li><b>Окно спереди:</b> после удара камня есть 15 с. Наведи прицел на скотч на столе и держи ЛКМ (на телефоне — палец) 10 с.</li>
+<li><b>Вентиляция:</b> подними взгляд к потолку и кликни по кнопке рядом с решёткой (ПК: V). Стук по трубам громче — «Ржавый» ближе. Сломалась заслонка — держи ЛКМ на отвёртке на столе 8 с.</li>
+<li class="pc"><b>T</b> — взять/положить сканер, <b>G</b> — шокер. Шокером кликни по Ржавому у решётки (шанс 50/50, −10% заряда).</li>
+<li><b>Чёрт справа:</b> просто посмотри на него. <b>Робот у двери:</b> когда появился 👁 — свети на него 2 с или закрой дверь.</li>
+<li>Записки на стенах читай, когда нет угроз. ⚙ — звук, яркость, чувствительность. Предмет под прицелом подписан по центру экрана.</li></ul></details>
 <label><input type="checkbox" id="fast"> тест-режим ×2</label>
 <button id="go">Начать смену</button></div>
 <div class="scr" id="over"><h1 id="ot"></h1><p id="os"></p><button onclick="location.reload()">Ещё раз</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),R=(a,b)=>a+Math.random()*(b-a);
-const isTouch=matchMedia('(pointer:coarse)').matches;let speed=1,started=false,dead=false,won=false,t=0,RD=0,mx=0,my=0,yaw=0,pit=0,killer=null,deadT=0;
+const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||'ontouchstart' in window,isTouch=isMobile;document.documentElement.classList.toggle('m',isMobile);let speed=1,started=false,dead=false,won=false,t=0,RD=0,mx=0,my=0,yaw=0,pit=0,killer=null,deadT=0;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x020306);scene.fog=new THREE.Fog(0x020306,6,30);
 const cam=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,60);cam.position.set(0,1.6,0);cam.rotation.order='YXZ';scene.add(cam);
 const ren=new THREE.WebGLRenderer({antialias:true});ren.setSize(innerWidth,innerHeight);ren.setPixelRatio(Math.min(devicePixelRatio,isTouch?1.5:2));document.body.prepend(ren.domElement);
@@ -187,65 +217,74 @@ else if(k=='retreat'){osc('sawtooth',200,70,1.2,.1);noi(1,.12)}
 else if(k=='chirp'){osc('triangle',900+R(0,500),1300+R(0,400),.09,.07)}
 else if(k=='giggle'){[0,1,2,3].forEach(i=>setTimeout(()=>snd('chirp'),i*110));noi(.5,.08)}
 else if(k=='whistle'){osc('sine',2200,500,.5,.22)}
-else if(k=='bell'){osc('sine',1760,1750,.7,.18);osc('sine',2349,2340,.6,.12)}}
+else if(k=='bell'){osc('sine',1760,1750,.7,.18);osc('sine',2349,2340,.6,.12)}
+else if(k[0]=='k'&&k[1]=='n'){const v=+k[2];osc('square',190,90,.12,.04+.05*v);noi(.1,.02*v)}
+else if(k=='bang'){osc('sine',110,45,.35,.7);noi(.25,.4)}
+else if(k=='growl'){osc('sawtooth',90,60,1.2,.25);noi(1,.2)}
+else if(k=='zap'){noi(.4,.5);osc('square',2000,200,.3,.2)}}
 // управление
 const ray=new THREE.Raycaster(),mv=new THREE.Vector2(),dz=(v,z)=>Math.abs(v)<z?0:Math.sign(v)*(Math.abs(v)-z)/(1-z);
 let lockFail=false,tx=null;const cvs=ren.domElement;
 document.addEventListener('pointerlockerror',()=>lockFail=true);
-function lookD(dx,dy){yaw=Math.max(-1.9,Math.min(1.9,yaw-dx*.0025));pit=Math.max(-.9,Math.min(.6,pit-dy*.0025))}
+function lookD(dx,dy){yaw=Math.max(-1.9,Math.min(1.9,yaw-dx*.0025*sens));pit=Math.max(-.9,Math.min(1,pit-dy*.0025*sens));if(dy>4)upT=false}
 addEventListener('mousemove',e=>{if(started&&!dead&&!won&&!paused)lookD(e.movementX||0,e.movementY||0)});
-addEventListener('touchmove',e=>{const q=e.touches[0];if(tx)lookD((q.clientX-tx[0])*1.5,(q.clientY-tx[1])*1.5);tx=[q.clientX,q.clientY];mv.set(q.clientX/innerWidth*2-1,-(q.clientY/innerHeight*2-1))},{passive:true});
-addEventListener('touchend',()=>{tx=null;mv.set(0,0)});
-addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#gear,#set'))return;if(!started||dead||won||paused)return;
+let tS=0,tm=0,tH=null,t2=null;
+function tapAct(){if(!started||dead||won||paused)return;ray.setFromCamera(mv,cam);if(ray.intersectObject(btn).length)toggleDoor();else if(!clickObjs())tryNote()}
+addEventListener('touchstart',e=>{if(e.target.closest&&e.target.closest('#gear,#set,#vb'))return;if(e.touches.length==2){t2=(e.touches[0].clientY+e.touches[1].clientY)/2;return}
+const q=e.touches[0];tx=[q.clientX,q.clientY];tS=performance.now();tm=0;clearTimeout(tH);tH=setTimeout(()=>{holdBtn=true},500)},{passive:true});
+addEventListener('touchmove',e=>{if(e.touches.length==2){const y=(e.touches[0].clientY+e.touches[1].clientY)/2;if(t2!=null&&y-t2>70){t2=null;$('gear').onclick()}else if(t2!=null&&t2-y>70){t2=null;yaw=0;pit=0;upT=false}return}
+const q=e.touches[0];if(tx&&started&&!paused){const dx=q.clientX-tx[0],dy=q.clientY-tx[1];tm+=Math.abs(dx)+Math.abs(dy);if(tm>12)clearTimeout(tH);if(!dead&&!won)lookD(dx*1.5,dy*1.5)}tx=[q.clientX,q.clientY]},{passive:true});
+addEventListener('touchend',()=>{clearTimeout(tH);if(tx&&tm<=12&&performance.now()-tS<500)tapAct();holdBtn=false;tx=null;t2=null});
+addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('#gear,#set,#vb'))return;if(e.pointerType=='touch')return;if(!started||dead||won||paused)return;
 if(e.pointerType=='mouse'&&!lockFail&&document.pointerLockElement!==cvs){cvs.requestPointerLock&&cvs.requestPointerLock();return}
-if(e.pointerType=='touch')mv.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight*2-1));holdBtn=true;ray.setFromCamera(mv,cam);if(ray.intersectObject(btn).length)toggleDoor();else tryNote()});const up=e=>{holdBtn=false;if(e.pointerType=='touch')mv.set(0,0)};addEventListener('pointerup',up);addEventListener('pointercancel',up);
+if(e.pointerType=='touch')mv.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight*2-1));holdBtn=true;ray.setFromCamera(mv,cam);if(ray.intersectObject(btn).length)toggleDoor();else if(!clickObjs())tryNote()});const up=e=>{holdBtn=false;if(e.pointerType=='touch')mv.set(0,0)};addEventListener('pointerup',up);addEventListener('pointercancel',up);
 addEventListener('keydown',e=>{if(e.code=='Space'&&started&&!dead)toggleDoor()});
-let nc=0,nT=0,subT=0,silT=0,silO=null,rp=0,holdBtn=false,maxBat=100,note="",noteT=0,paused=false,doorOpen=true,bat=100,broken=false,fixT=15,winT=R(50,120),rock=null;
+let sens=1,optV=false,upT=false,scanOn=true,tzHeld=false,tzCd=0,tzHot=0,why="",nc=0,nT=0,subT=0,silT=0,silO=null,rp=0,holdBtn=false,maxBat=100,note="",noteT=0,paused=false,doorOpen=true,bat=100,broken=false,fixT=15,winT=R(50,120),rock=null;
 const rockM=new THREE.Mesh(new THREE.SphereGeometry(.13,8,8),M(0x777777));rockM.visible=false;scene.add(rockM);
 function applyDoor(){door.visible=!doorOpen;btnM.color.set(doorOpen?0x22cc44:0xcc2222);btnM.emissive.set(doorOpen?0x118822:0x881111)}
 function toggleDoor(){if(doorOpen){if(bat<1)return;doorOpen=false}else doorOpen=true;snd('door');applyDoor()}
 function breakWin(){broken=true;rp=0;fixT=15;glass.visible=false;shards.visible=true;snd('glass');rockM.visible=false}
 function fixWin(){broken=false;rp=0;glass.visible=true;shards.visible=false;snd('beep');winT=R(50,130)}
-function kill(g,front){if(dead)return;dead=true;document.exitPointerLock&&document.exitPointerLock();killer=g;$('hands').className='def';g.visible=true;if(front){g.position.set(-1.35,0,-6.4);g.rotation.y=0}snd('scream');$('fl').style.transition='none';$('fl').style.opacity=.9;$('msg').textContent='';$('prog').style.display='none'}
-function win(){won=true;document.exitPointerLock&&document.exitPointerLock();$('ot').textContent=(nc>=5?'ИСТИННАЯ КОНЦОВКА':'6:00 AM — ВЫ ДОЖИЛИ!');$('ot').style.color='#6f6';$('os').textContent=(nc>=5?'Ты собрал все записки: утром находишь в подвале рубильник завода «КиберМех» и выключаешь роботов навсегда. ':'')+'Смена закончена. Выдано заказов: '+done;$('over').style.display='flex'}
+function kill(g,front){if(dead)return;dead=true;document.exitPointerLock&&document.exitPointerLock();killer=g;$('hands').className='def';why=g===orm?'Ржавый из вентиляции':g===mon.g?'Робот у двери':g===wmon?'Робот из окна':'Неизвестно';vib(600);g.visible=true;if(front){g.position.set(-1.35,0,-6.4);g.rotation.y=0}snd('scream');$('fl').style.transition='none';$('fl').style.opacity=.9;$('msg').textContent='';$('prog').style.display='none'}
+function win(){won=true;document.exitPointerLock&&document.exitPointerLock();$('ot').textContent=(nc>=8?'ИСТИННАЯ КОНЦОВКА':'6:00 AM — ВЫ ДОЖИЛИ!');$('ot').style.color='#6f6';$('os').textContent=(nc>=8?'Ты собрал все записки: утром находишь в подвале рубильник завода «КиберМех» и выключаешь роботов навсегда. ':'')+'Смена закончена. Выдано заказов: '+done+'. Рекорд: '+rec();$('over').style.display='flex'}
 const tmp=new THREE.PerspectiveCamera(),hp=new THREE.Vector3(),fw=new THREE.Vector3();
 function deadStep(dt){deadT+=RD;const g=killer;
 const d=new THREE.Vector3(g.position.x-cam.position.x,0,g.position.z-cam.position.z).normalize(),tg=new THREE.Vector3(cam.position.x,0,cam.position.z).addScaledVector(d,1.0);
-g.position.lerp(tg,Math.min(1,RD*1.5));g.localToWorld(hp.set(0,2,.2));tmp.position.copy(cam.position);tmp.lookAt(hp);cam.quaternion.slerp(tmp.quaternion,Math.min(1,RD*8));
-cam.position.set(R(-.04,.04),1.6+R(-.04,.04),R(-.04,.04));$('fl').style.opacity=Math.random()<.3?.7:0;$('cur').style.display='none';
-if(deadT>2.4){$('fl').style.opacity=0;$('ot').textContent='ВАС СХВАТИЛИ';$('ot').style.color='#e22';$('os').textContent='Вы не дожили до утра. Время смерти: '+$('time').textContent;$('over').style.display='flex'}}
+g.position.lerp(tg,Math.min(1,RD*1.5));const HD=g.userData.hd||[0,2,.2];g.localToWorld(hp.set(HD[0],HD[1],HD[2]));tmp.position.copy(cam.position);tmp.lookAt(hp);cam.quaternion.slerp(tmp.quaternion,Math.min(1,RD*8));
+cam.position.set(R(-.04,.04),1.6+R(-.04,.04),R(-.04,.04));$('fl').style.opacity=.35;$('cur').style.display='none';
+if(deadT>2.4){$('fl').style.opacity=0;$('ot').textContent='ВАС СХВАТИЛИ';$('ot').style.color='#e22';$('os').textContent='Убийца: '+why+'. Время: '+$('time').textContent+'. Выдано заказов: '+done+'. Рекорд: '+rec()+'. Совет: '+({'Робот у двери':'закрывай дверь, когда загорается 👁','Робот из окна':'чини окно сразу, скотч на столе','Ржавый из вентиляции':'слушай стук, закрывай заслонку вовремя'}[why]||'будь внимательнее')+'.';$('over').style.display='flex'}}
 function update(dt){
 if(dead){deadStep(dt);return}
-t+=dt;if(t>=1800){win();return}
+t+=dt;if(t>=1200){win();return}
 if(mon.ph==2&&mon.step>=3)cam.position.set(R(-.015,.015),1.6+R(-.015,.015),0);else cam.position.set(0,1.6,0);cam.rotation.set(pit,yaw,0);cam.updateMatrixWorld();
 mv.set(mx,my);ray.setFromCamera(mv,cam);spT.position.copy(ray.ray.origin).addScaledVector(ray.ray.direction,10);
 lampT-=dt;if(lampT<0){lampF=.5;lampT=R(10,28);const r=Math.random();silO=r<.33?silR:r<.66?silD:null;silT=.3;if(silO)silO.visible=true}if(silT>0){silT-=dt;if(silT<=0&&silO)silO.visible=false}const lp=lamps[1];if(lampF>0){lampF-=dt;lp.l.intensity=Math.random()<.5?.05:.6;lp.b.material.color.setHex(0x554422)}else{lp.l.intensity=.6;lp.b.material.color.setHex(0xffd060)}
 // батарея
-if(!doorOpen){bat-=dt*1;if(bat<=0){bat=0;doorOpen=true;applyDoor();snd('door')}}else bat=Math.min(maxBat,bat+dt*.25);
+if(!doorOpen){bat-=dt*.5;if(bat<=0){bat=0;doorOpen=true;applyDoor();snd('door')}}else bat=Math.min(maxBat,bat+dt*.25);
 // монстр у двери
-if(monStep(dt))return;
+if(!(cu&&cu.st=='wait')&&monStep(dt))return;if(ventStep(dt))return;;
 // скример
-if(!scr.on){scr.t-=dt;if(scr.t<=0){scr.on=true;scr.look=0;scr.g.visible=true;snd('giggle');scr.gt=R(5,9)}}
+if(!scr.on){scr.t-=dt;if(scr.t<=0){scr.on=true;scr.look=0;scr.g.visible=true;snd('giggle');vib(80);scr.gt=R(5,9)}}
 else{scr.g.rotation.z=Math.sin(t*2)*.08;scr.gt-=dt;if(scr.gt<0){snd("giggle");scr.gt=R(5,9)}cam.getWorldDirection(fw);const d=new THREE.Vector3(4.4,1.7,0).sub(cam.position).normalize();
-if(fw.dot(d)>.93){scr.look+=dt;if(scr.look>.35){scr.on=false;scr.g.visible=false;snd('scare');$('fl').style.transition='none';$('fl').style.opacity=.5;setTimeout(()=>{$('fl').style.transition='opacity 1s';$('fl').style.opacity=0},60);scr.t=R(40,100)}}else scr.look=0}
+if(tzHeld&&fw.dot(d)>.93){scr.on=false;scr.g.visible=false;scr.t=10;snd("beep")}else if(fw.dot(d)>.93){scr.look+=dt;if(scr.look>.35){scr.on=false;scr.g.visible=false;snd('scare');$('fl').style.transition='none';$('fl').style.opacity=.5;setTimeout(()=>{$('fl').style.transition='opacity 1s';$('fl').style.opacity=0},60);scr.t=R(40,100)}}else scr.look=0}
 // окно
 if(!broken&&!rock){winT-=dt;if(winT<=0){rock={t:0};snd("whistle")}}
 if(rock){rock.t+=dt/.5;rockM.visible=true;rockM.position.set(-1.2-.2*rock.t,1.8-.1*rock.t,-16+10*rock.t);if(rock.t>=1){rock=null;breakWin()}}
-if(broken){if(holdBtn&&ray.intersectObject(tapeHit).length)rp+=dt;else fixT-=dt;$('msg').textContent='⚠ ОКНО РАЗБИТО! Держи ЛКМ на скотче ('+Math.min(10,Math.floor(rp)+1)+'/10) · осталось '+Math.ceil(fixT)+' с';if(rp>=10){fixWin();fixT=99}if(fixT<=0){broken=false;wmon.visible=true;kill(wmon,true);return}}
+if(broken){if(holdBtn&&!tzHeld&&ray.intersectObject(tapeHit).length)rp+=dt;else fixT-=dt;$('msg').textContent='⚠ ОКНО РАЗБИТО! Держи ЛКМ на скотче ('+Math.min(10,Math.floor(rp)+1)+'/10) · осталось '+Math.ceil(fixT)+' с';if(rp>=10){fixWin();fixT=99}if(fixT<=0){broken=false;wmon.visible=true;kill(wmon,true);return}}
 else{noteT-=dt;$('msg').textContent=noteT>0?note:(bat<20?'Батарея на исходе!':'')}
 // покупатели
 if(!cu){cuT-=dt;if(cuT<=0)cu=getCust()}
 else{if(cu.st=='in'||cu.st=='out'){if(walk(cu,dt)){if(cu.st=='in'){cu.st='wait';cu.g.rotation.y=0;cu.g.position.y=0;cu.lg.forEach(l=>l.rotation.x=0);cu.ar[0].rotation.x=0;cu.ar[1].rotation.x=-1.4;say('Здравствуйте, я за заказом',cu.p);cu.sp=R(8,12);cu.q.visible=true}else{cu.g.visible=false;cu=null;cuT=R(15,35)}}}
-else if(cu.st=='wait'){cu.w-=dt;const hit=ray.intersectObject(cu.q).length||near(cu.q),need=cu.fl?8:5;if(cu.fl)cu.q.visible=Math.random()>.35;
-if(hit){sc+=dt;cu.lost=0}else{if(cu.fl&&sc>0){cu.lost+=dt;if(cu.lost>1.5){trap(cu);return}}sc=Math.max(0,sc-dt*1.5)}
+else if(cu.st=='wait'){cu.w-=dt;const hit=scanOn&&(ray.intersectObject(cu.q).length||near(cu.q)),need=cu.fl?8:5;if(cu.fl)cu.q.visible=Math.random()>.35;
+if(hit){sc+=dt*(tzHeld?.7:1)*(bat<15?.6:1);cu.lost=0}else{if(cu.fl&&sc>0){cu.lost+=dt;if(cu.lost>1.5){trap(cu);return}}sc=Math.max(0,sc-dt*1.5)}
 cu.sp-=dt;if(cu.sp<=0){say(P2[Math.floor(Math.random()*4)],cu.p);cu.sp=R(8,14)}
 if(sc>=need){sc=0;done++;snd('beep');say('Спасибо!',cu.p);cu.st='take';cu.tt=1.5;cu.q.visible=false}else if(cu.w<=0){missed++;sc=0;leave(cu);maxBat=Math.max(10,maxBat-10);bat=Math.min(bat,maxBat);note="Клиент ушёл! Макс. заряд −10%";noteT=4}}
 else if(cu.st=='take'){cu.tt-=dt;if(cu.tt<=0)leave(cu)}}
-if(cu){const nr=cu.g.position.distanceTo(cam.position)<9;cu.det.forEach(o=>o.visible=nr)}const pv=cu&&cu.st=='wait'&&sc>0,rv=broken&&rp>0;$('prog').style.display=(pv||rv)?'block':'none';$('prog').firstChild.style.width=(rv?rp/10:sc/(cu&&cu.fl?8:5))*100+'%';$('prog').firstChild.style.background=rv?'#fc3':'#f33';
+if(cu){const nr=cu.g.position.distanceTo(cam.position)<9;cu.det.forEach(o=>o.visible=nr)}const pv=cu&&cu.st=='wait'&&sc>0,rv=broken&&rp>0,vv=vs.dmg&&vs.rp>0;$('prog').style.display=(pv||rv||vv)?'block':'none';$('prog').firstChild.style.width=(vv?vs.rp/8:rv?rp/10:sc/(cu&&cu.fl?8:5))*100+'%';$('prog').firstChild.style.background=(rv||vv)?'#fc3':'#f33';
 // HUD
-$('time').textContent=['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM'][Math.min(5,Math.floor(t/300))];
-$('bat').textContent='🔋 '+Math.round(bat)+'%'+(maxBat<100?' (макс '+maxBat+'%)':'')+'  '+(doorOpen?'🟢 дверь открыта':'🔴 дверь закрыта');$('bat').style.color=bat<20?'#f55':'';
-$('cnt').textContent='Выдано: '+done+' · Записки '+nc+'/5';$('hands').className=(pv?'scn ':'')+(broken&&holdBtn?'rep ':'')+(bat<20?'shk':'');
+$('time').textContent=['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM'][Math.min(5,Math.floor(t/200))];
+$('bat').textContent='🔋 '+Math.round(bat)+'%'+(maxBat<100?' (макс '+maxBat+'%)':'')+'  '+(doorOpen?'🟢 дверь открыта':'🔴 дверь закрыта')+' · вент. '+(vs.dmg?'🟡 сломана':vs.cl?'🔴':'🟢');$('bat').style.color=bat<20?'#f55':'';
+$('cnt').textContent='Выдано: '+done+' · Записки '+nc+'/8';$('hands').className=(pv?'scn ':'')+(broken&&holdBtn?'rep ':'')+(bat<20?'shk':'')+(tzHeld?' tzh':'')+(scanOn?'':' nos');hud2(dt);
 $('eye').style.display=mon.ph>=1&&mon.ph<=3?'block':'none';$('eye').style.color=mon.ph==1?'#fd3':'#f22';
 subT-=dt;if(subT<=0&&$('sub').textContent)$('sub').textContent='';nT-=dt;if(nT<=0)$('note').style.display='none'}
 let last=performance.now();
@@ -265,32 +304,103 @@ c.i=0;c.st='in';c.w=30;c.tt=0;c.path=[[2.5,-14],[2.5,-5],[1.5,-3.8],[0,-3.2]];c.
 c.g.traverse(o=>{if(o.material&&o.material.emissive)o.material.emissive.setHex(o===c.q?0x151515:0)});c.ar.forEach(a=>a.rotation.x=0);return c}
 const STP=[[-4.6,0],[-3.7,0],[-2.4,-.3],[-1.3,-.2]];
 function fade(g,a){g.traverse(o=>{if(o.material){o.material.transparent=a<1;o.material.opacity=a}})}
-function lit(){return ray.intersectObject(mon.g,true).length>0}
-function cdv(){return t<600?R(25,60):t<1200?R(30,90):R(20,50)}
+function lit(){return scanOn&&ray.intersectObject(mon.g,true).length>0}
+function cdv(){return t<600?R(25,60):t<1000?R(30,90):R(20,50)}
 function retreat(c){mon.ph=4;mon.pt=0;mon.rt=R(5,15);mon.cd=c||cdv();mon.cl=0;snd('retreat')}
 function monStep(dt){const m=mon,ce=m.pd&&!doorOpen;m.pd=doorOpen;
-if(m.ph<0){m.cd-=dt;if(m.cd<=0&&doorOpen){m.ph=0;m.pt=0;m.step=0;m.cl=0;fade(m.g,.35);m.g.position.set(STP[0][0],0,0);m.g.visible=true;snd('creak');setTimeout(()=>snd('hyd'),800)}return false}
+if(m.ph<0){m.cd-=dt;if(m.cd<=0&&doorOpen){m.ph=0;m.pt=0;m.step=0;m.cl=0;fade(m.g,.35);m.g.position.set(STP[0][0],0,0);m.g.visible=true;snd('creak');vib(80);setTimeout(()=>snd('hyd'),800)}return false}
 m.pt+=dt;m.tk-=dt;
 if(m.ph==0){if(ce){m.ph=-1;m.cd=cdv();m.g.visible=false;fade(m.g,1);return false}if(m.pt>=5){m.ph=1;m.pt=0;fade(m.g,1)}}
 else if(m.ph==1){if(m.tk<=0){snd('tick');m.tk=1}m.g.userData.rd.color.setRGB(.35+.65*Math.abs(Math.sin(t*3)),.05,.05);
 if(!doorOpen){m.cl+=dt;if(m.cl>=15){retreat();return false}}else m.cl=0;
 if(doorOpen&&lit()){m.lt+=dt;if(m.lt>=2){m.lt=0;retreat(R(15,30));return false}}else m.lt=Math.max(0,m.lt-dt);
-if(m.pt>=20){m.ph=2;m.pt=0;m.step=1;m.cl=0;m.st=R(5,8);snd('rstep')}}
+if(m.pt>=20){m.ph=2;m.pt=0;m.step=1;m.cl=0;m.st=R(6,10);snd('rstep')}}
 else if(m.ph==2){if(m.tk<=0){snd('tick');m.tk=.5}
-if(ce){m.step--;m.st=R(5,8);snd('hyd');if(m.step<1){m.ph=1;m.pt=0}}
+if(ce){m.step--;m.st=R(6,10);snd('hyd');if(m.step<1){m.ph=1;m.pt=0}}
 if(!doorOpen){m.cl+=dt;if(m.cl>=15){retreat();return false}}else m.cl=0;
 if(doorOpen&&lit())m.sl=3;let r=1;if(m.sl>0){m.sl-=dt;r=.4}
-m.st-=dt*r;if(m.st<=0){if(m.step>=3){m.ph=3;m.pt=0;snd('hyd')}else{m.step++;m.st=R(5,8);snd('rstep')}}}
+m.st-=dt*r;if(m.st<=0){if(m.step>=3){m.ph=3;m.pt=0;snd('hyd')}else{m.step++;m.st=R(6,10);snd('rstep')}}}
 else if(m.ph==3){if(!doorOpen){retreat();return false}if(m.pt>=1.5){kill(m.g,false);return true}}
 else if(m.ph==4){fade(m.g,Math.max(0,1-m.pt/m.rt));if(m.pt>=m.rt){m.ph=-1;m.g.visible=false;fade(m.g,1)}}
 const T=m.ph==2?STP[m.step]:m.ph==3?[-.9,0]:m.ph==4?[-5.8,0]:STP[0];
 m.g.position.x+=(T[0]-m.g.position.x)*Math.min(1,dt*(m.ph==3?9:1.5));m.g.position.z+=(T[1]-m.g.position.z)*Math.min(1,dt*2);return false}
 const silR=robot(0);silR.position.set(-1.2,0,-3.3);silR.rotation.y=.5;const silD=scr.g.clone();silD.position.set(1.4,2.45,-3.5);silD.rotation.y=0;silD.visible=false;scene.add(silD);
 const noteTx=cv(64,80,(x,w,h)=>{x.fillStyle='#f3e6a8';x.fillRect(0,0,w,h);x.strokeStyle='#7a6a3a';for(let i=0;i<8;i++){x.beginPath();x.moveTo(6,12+i*8);x.lineTo(R(30,58),12+i*8);x.stroke()}});
-const NT=['Смена 1. Начальник: ПВЗ открыли в здании бывшего завода «КиберМех». Не спрашивай про подвал.','Роботы-курьеры не списаны. Они всё ещё ищут посылки. Не пускай их внутрь.','Старый сторож говорил: чёрт на окне — бывший курьер, не доставивший заказ вовремя.','Клиенты с мерцающим QR — не клиенты. Не промахивайся.','Если читаешь это — ты пятый сменщик. До утра дожил один. Держи дверь.'];
+const NT=['Смена 1. Начальник: ПВЗ открыли в здании бывшего завода «КиберМех». Не спрашивай про подвал.','Роботы-курьеры не списаны. Они всё ещё ищут посылки. Не пускай их внутрь.','Старый сторож говорил: чёрт на окне — бывший курьер, не доставивший заказ вовремя.','Клиенты с мерцающим QR — не клиенты. Не промахивайся.','Если читаешь это — ты пятый сменщик. До утра дожил один. Держи дверь.','Записка в шахте: «Ржавый» — старый робот-ремонтник завода. Его бросили в вентиляции, и теперь он ползает там на четвереньках.','Он не боится света сканера, только тока. Слушай стук по трубам: чем громче, тем ближе он к решётке.','Закрыл заслонку — выиграл время, но Ржавый её сломает. Держи отвёртку под рукой.'];
 bx(.6,.5,.5,-3.2,.25,-4.4,M(0xb08a5a));bx(.5,.4,.45,-3.1,.7,-4.4,M(0xa07a4a));
-const notes=[[2.5,2.55,-5.88,0,0],[-1.25,1.012,-1.5,-Math.PI/2,0],[3.88,1.55,-3,0,-Math.PI/2],[-3.88,1.7,-3.5,0,Math.PI/2],[-3.1,.7,-4.16,0,0]].map((q,i)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(.3,.38),new THREE.MeshLambertMaterial({map:noteTx,emissive:0x332f1a}));m.position.set(q[0],q[1],q[2]);m.rotation.set(q[3],q[4],0);scene.add(m);return{m,i,got:false}});
-function tryNote(){if(!(mon.ph<0&&!broken&&!scr.on&&!rock))return;for(const n of notes)if(!n.got&&ray.intersectObject(n.m).length){n.got=true;n.m.visible=false;nc++;$('note').textContent='📝 '+NT[n.i]+' ('+nc+'/5)';$('note').style.display='block';nT=7}}
+const notes=[[2.5,2.55,-5.88,0,0],[-1.25,1.012,-1.5,-Math.PI/2,0],[3.88,1.55,-3,0,-Math.PI/2],[-3.88,1.7,-3.5,0,Math.PI/2],[-3.1,.7,-4.16,0,0],[-3.88,1,-2.3,0,Math.PI/2],[3.88,1,-4.7,0,-Math.PI/2],[-3.75,1.5,-5.88,0,0]].map((q,i)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(.3,.38),new THREE.MeshLambertMaterial({map:noteTx,emissive:0x332f1a}));m.position.set(q[0],q[1],q[2]);m.rotation.set(q[3],q[4],0);scene.add(m);return{m,i,got:false}});
+function tryNote(){if(!(mon.ph<0&&!broken&&!scr.on&&!rock&&vs.ph=='idle'))return;for(const n of notes)if(!n.got&&ray.intersectObject(n.m).length){n.got=true;n.m.visible=false;nc++;$('note').textContent='📝 '+NT[n.i]+' ('+nc+'/5)';$('note').style.display='block';nT=7}}
+// ===== вибро, рекорд =====
+const vib=p=>{try{isMobile&&navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+function rec(){let b=0;try{b=+localStorage.getItem('pvzBest')||0;if(done>b){b=done;localStorage.setItem('pvzBest',b)}}catch(e){b=Math.max(b,done)}return b}
+// ===== предметы на столе: сканер, шокер, отвёртка =====
+const hb=(w,h,d,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w*(isMobile?1.3:1),h,d*(isMobile?1.3:1)),new THREE.MeshBasicMaterial({visible:false}));m.position.set(x,y,z);scene.add(m);return m};
+const scObj=new THREE.Group();bx(.07,.05,.2,0,0,0,M(0x222222),scObj);bx(.05,.02,.03,0,.03,-.1,new THREE.MeshBasicMaterial({color:0xff2222}),scObj);scObj.position.set(0,1.03,-1.25);scene.add(scObj);scObj.visible=false;const scHit=hb(.3,.2,.3,0,1.05,-1.25);
+const tzObj=new THREE.Group();bx(.06,.05,.22,0,0,0,M(0xe8c81a),tzObj);bx(.02,.02,.05,-.02,0,-.13,M(0x888888),tzObj);bx(.02,.02,.05,.02,0,-.13,M(0x888888),tzObj);bx(.062,.052,.08,0,0,.06,M(0x111111),tzObj);tzObj.position.set(.95,1.04,-1.3);scene.add(tzObj);const tzHit=hb(.3,.2,.3,.95,1.05,-1.3);
+const drObj=new THREE.Group();bx(.025,.025,.16,0,0,-.08,M(0xaaaaaa),drObj);bx(.04,.04,.1,0,0,.05,M(0xcc2222,0x550000),drObj);drObj.scale.set(1.8,1.8,1.8);drObj.position.set(1.25,1.03,-1.55);scene.add(drObj);const drHit=hb(.5,.25,.5,1.25,1.05,-1.55);
+// ===== вентиляция: решётка, кнопка заслонки, «Ржавый» =====
+const grM=M(0x222222),grate=bx(.7,.03,.5,-.7,2.98,-1.7,grM);for(let i=0;i<5;i++)bx(.7,.035,.02,-.7,2.96,-1.9+i*.1,M(0x555555));
+const vbM=M(0x22cc44,0x118822);bx(.2,.03,.2,.3,2.98,-1.7,vbM);const vHit=hb(.35,.3,.35,.3,2.9,-1.7);
+const vs={ph:'idle',node:5,cd:R(45,90),nt:0,dmg:false,cl:false,rp:0,gt:0,bt:0,hit:0,knk:0,rtt:0};
+const orm=(()=>{const g=new THREE.Group(),o=M(0xe8761a,0x2a1000),dk=M(0x5a2a08),ey=new THREE.MeshBasicMaterial({color:0xffee22}),tt=new THREE.MeshBasicMaterial({color:0xf4f0e0});
+bx(.5,.45,1.1,0,.75,0,o,g);bx(.4,.3,.4,0,.85,.45,o,g);
+const h=new THREE.Mesh(new THREE.SphereGeometry(.27,14,10),o);h.scale.set(1,.9,1.2);h.position.set(0,.95,.85);g.add(h);bx(.2,.14,.25,0,.88,1.12,o,g);
+[-1,1].forEach(s=>{bx(.07,.05,.03,s*.1,1.03,1.07,ey,g);const e=new THREE.Mesh(new THREE.ConeGeometry(.05,.18,5),dk);e.position.set(s*.15,1.2,.8);g.add(e)});
+for(let i=0;i<5;i++)bx(.03,.05,.03,-.08+i*.04,.8,1.24,tt,g);
+for(let i=0;i<4;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(.05,.16,5),dk);c.position.set(0,1.05,.4-i*.25);g.add(c)}
+[-1,1].forEach(sx=>[.4,-.4].forEach(sz=>{bx(.15,.6,.15,sx*.28,.3,sz,o,g);bx(.17,.06,.2,sx*.28,.03,sz+.05,dk,g);
+for(let k=0;k<3;k++){const c=new THREE.Mesh(new THREE.ConeGeometry(.02,.12,5),dk);c.rotation.x=Math.PI/2;c.position.set(sx*.28+(k-1)*.05,.03,sz+.17);g.add(c)}}));
+for(let i=0;i<9;i++)bx(.14-i*.011,.14-i*.011,.18,0,.8+.012*i*i,-.6-.17*i,i%2?dk:o,g);
+const sp2=new THREE.Mesh(new THREE.ConeGeometry(.1,.25,4),dk);sp2.rotation.x=-Math.PI/2;sp2.position.set(0,1.77,-2.2);g.add(sp2);
+g.userData.hd=[0,1.1,.9];g.visible=false;scene.add(g);return g})();
+function applyVent(){grM.color.set(vs.cl?0x888888:0x222222)}
+// заслонка: закрытие −5%, удержание −0.5%/с, открытие −2%; при заряде <5% или поломке не работает
+function toggleVent(){if(dead||vs.dmg||bat<5)return;if(vs.cl){bat=Math.max(0,bat-1);vs.cl=false}else{bat-=2.5;vs.cl=true;if(vs.ph=='grate'){vs.ph='break';vs.bt=5;vs.hit=0}}snd('door');applyVent()}
+// «Ржавый»: idle → travel (узел 5→1, стук громче) → grate (3 с на закрытие) → break (5 с, заслонка ломается) → retreat; замирает, пока клиент у кассы
+function ventStep(dt){const v=vs;
+vbM.color.setHex(v.dmg?(Math.sin(t*8)>0?0xffcc00:0x332200):bat<5?0x333333:v.cl?0xcc2222:0x22cc44);vbM.emissive.setHex(v.dmg||bat<5?0:v.cl?0x881111:0x118822);
+if(v.cl)bat=Math.max(0,bat-dt*.25);
+if(v.dmg&&holdBtn&&!tzHeld&&ray.intersectObject(drHit).length){v.rp+=dt;if(v.rp>=8){v.dmg=false;v.rp=0;snd('beep')}}
+tzCd-=dt;tzHot-=dt;if(cu&&cu.st=='wait')return false;
+if(v.ph=='idle'){v.cd-=dt;if(v.cd<=0){v.ph='travel';v.node=5;v.nt=R(8,15);v.knk=0;vib(80)}}
+else if(v.ph=='travel'){v.nt-=dt;v.knk-=dt;if(v.knk<=0){snd('kn'+(6-v.node));v.knk=[0,.4,.7,1,1.5,2][v.node]}
+if(v.nt<=0){v.node--;v.nt=R(8,15);if(v.node<1){v.node=1;orm.visible=true;orm.rotation.z=Math.PI;orm.scale.set(.8,.8,.8);orm.position.set(-.7,2.95,-1.9);snd('growl');if(v.cl){v.ph='break';v.bt=5;v.hit=0}else{v.ph='grate';v.gt=(v.dmg&&holdBtn)?0:3}}}}
+else if(v.ph=='grate'){v.gt-=dt;v.knk-=dt;if(v.knk<=0){snd('growl');v.knk=1}if(v.gt<=0){orm.rotation.z=0;orm.scale.set(1,1,1);orm.position.set(-.7,2.2,-1.9);kill(orm,false);return true}}
+else if(v.ph=='break'){v.bt-=dt;orm.position.x=-.7+R(-.02,.02);if(v.hit<4&&v.bt<5-(v.hit+1)*1.1){v.hit++;snd('bang')}
+if(v.bt<=0){v.ph='retreat';v.rtt=R(15,25);v.dmg=true;v.cl=false;applyVent();orm.visible=false;vib([100,50,100])}}
+else if(v.ph=='retreat'){v.rtt-=dt;v.node=Math.min(5,1+Math.floor((1-v.rtt/20)*4));if(v.rtt<=0){v.ph='idle';v.node=5;v.cd=t<600?R(60,120):t<1000?R(50,100):R(40,80)}}
+return false}
+// ===== шокер, сканер, клики по предметам =====
+function takeTz(){tzHeld=true;tzObj.visible=false;if(cu&&cu.st=='wait'){leave(cu);bat=Math.max(0,bat-5);note='Клиент испугался! −5% батареи';noteT=4}}
+function clickObjs(){
+if(tzHeld&&vs.ph=='grate'&&tzCd<=0&&tzHot<=0&&bat>=10&&(ray.intersectObject(grate).length||ray.intersectObject(orm,true).length)){bat-=10;tzCd=3;snd('zap');flash();
+if(Math.random()<.5){vs.ph='travel';vs.node=3;vs.nt=R(20,40);orm.visible=false;tzHot=8;vs.knk=1}else{tzHeld=false;tzObj.visible=true;vs.gt=Math.min(vs.gt,1);pit=1;snd('growl')}return true}
+if(!scanOn&&ray.intersectObject(scHit).length){scanOn=true;scObj.visible=false;return true}
+if(!tzHeld&&ray.intersectObject(tzHit).length){takeTz();return true}
+if(pit>.3&&ray.intersectObject(vHit).length){toggleVent();return true}
+return false}
+const keyT=()=>{scanOn=!scanOn;scObj.visible=!scanOn},keyG=()=>{if(tzHeld){tzHeld=false;tzObj.visible=true}else takeTz()},keyV=()=>{if(pit>.3)toggleVent();else if(optV){bat=Math.max(0,bat-.5);toggleVent()}};
+addEventListener('keydown',e=>{if(!started||dead||won||paused)return;if(e.code=='KeyT')keyT();if(e.code=='KeyG')keyG();if(e.code=='KeyV')keyV()});
+const kd=(id,f)=>$(id).addEventListener('pointerdown',e=>{e.preventDefault();if(started&&!dead&&!won&&!paused)f()});
+kd('bV',keyV);kd('bG',keyG);kd('bT',keyT);kd('bU',()=>{upT=true});
+// ===== мини-карта, индикаторы по краям, мерцание при низком заряде =====
+const mc=$('map').getContext('2d'),NP=[[20,100],[45,75],[75,85],[95,50],[105,20]];
+function hud2(dt){if(upT)pit+=(.5-pit)*Math.min(1,RD/.3);$('bV').classList.toggle('on',pit>.3);sp.visible=scanOn;
+const c=mc,on=vs.ph!='idle';c.clearRect(0,0,120,120);c.globalAlpha=on?1:.35;c.strokeStyle='#666';c.lineWidth=4;c.beginPath();NP.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.stroke();
+NP.forEach((q,i)=>{const n=i+1,cur=on&&vs.node==n,pas=vs.ph=='travel'&&n>vs.node;c.fillStyle=cur?'#f80':pas?'#777':'#444';c.beginPath();c.arc(q[0],q[1],cur?6+2*Math.sin(t*8):5,0,7);c.fill()});
+c.font='14px sans-serif';c.fillStyle=on&&vs.node<=2?'#f33':'#ddd';c.fillText('🔶',2,118);c.fillText(vs.dmg?'🟡':vs.cl?'🔴':'🟢',28,118);
+const hits=o=>ray.intersectObject(o).length;let hn='';
+if(hits(btn))hn='Кнопка двери — клик / Пробел';
+else if(hits(tapeHit))hn=broken?(tzHeld?'Положи шокер (G), затем держи ЛКМ':'Скотч — держи ЛКМ, чтобы починить окно'):'Скотч (окно цело)';
+else if(hits(drHit))hn=vs.dmg?(tzHeld?'Положи шокер (G), затем держи ЛКМ':'Отвёртка — держи ЛКМ, чтобы починить заслонку'):'Отвёртка (заслонка исправна, чинить нечего)';
+else if(hits(tzHit)&&!tzHeld)hn='Шокер — клик или G';else if(hits(scHit)&&!scanOn)hn='Сканер — клик или T';
+else if(hits(vHit))hn=pit>.3?'Заслонка вентиляции — клик / V':'Подними взгляд выше';
+$('hint').textContent=dead||paused?'':hn;
+}
+// ===== настройки (сохраняются) =====
+function sv(){try{localStorage.setItem('pvzCfg',JSON.stringify({v:vol,b:$('bri').value,s:sens}))}catch(e){}}
+$('sns').oninput=e=>{sens=e.target.value/100;sv()};$('optv').onchange=e=>{optV=e.target.checked};$('vol').addEventListener('input',sv);$('bri').addEventListener('input',sv);
+try{const c=JSON.parse(localStorage.getItem('pvzCfg')||'{}');if(c.v!=null){vol=c.v;$('vol').value=c.v*100}if(c.b){$('bri').value=c.b;cvs.style.filter='brightness('+c.b/100+')'}if(c.s){sens=c.s;$('sns').value=c.s*100}}catch(e){}
 $('gear').onclick=()=>{paused=!paused;$('set').style.display=paused?'block':'none';holdBtn=false;if(paused&&document.exitPointerLock)document.exitPointerLock()};
 $('vol').oninput=e=>{vol=e.target.value/100;if(master)master.gain.value=vol};
 $('bri').oninput=e=>{cvs.style.filter='brightness('+e.target.value/100+')'};
